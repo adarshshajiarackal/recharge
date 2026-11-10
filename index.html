@@ -242,8 +242,8 @@
 <script>
 $(function () {
   // Replace this with your merchant UPI ID, e.g. merchantname@okaxis.
-  const MERCHANT_UPI_ID = "acc_RL5opa95gx8lak";
-  const MERCHANT_NAME = "Rupi";
+  const MERCHANT_UPI_ID = "YOUR-UPI-ID@BANK";
+  const MERCHANT_NAME = "Rechrg";
   let provider = "", phone = "", selectedPlan = { price: 299, name: "Value Pack", detail: "1.5 GB/day • 28 days" };
   let countdownTimer;
 
@@ -252,12 +252,18 @@ $(function () {
     $("#continue-mobile").prop("disabled", !(provider && valid));
     $("#digit-count").text($("#phone").val().length + " / 10");
   }
+  // The selected plan is the single source of truth for every displayed/payment amount.
+  function getSelectedPlanAmount() {
+    return Number(selectedPlan.price) || 0;
+  }
+
   function updateSummary() {
+    const amount = getSelectedPlanAmount();
     $("#sum-provider").text(provider || "Not selected");
     $("#sum-phone").text(phone ? "+91 " + phone : "—");
     $("#sum-plan").text(selectedPlan.name || "—");
-    $("#sum-total").text(selectedPlan.price ? "₹" + selectedPlan.price : "₹0");
-    $("#pay-now").html("Pay ₹" + selectedPlan.price + " securely <span aria-hidden='true'>→</span>");
+    $("#sum-total").text("₹" + amount.toFixed(2));
+    $("#pay-now").html("Pay ₹" + amount.toFixed(2) + " securely <span aria-hidden='true'>→</span>");
   }
   function showScreen(screen) {
     $("#mobile-screen, #payment-screen, #otp-screen, #gpay-screen, #success-screen").addClass("hidden");
@@ -358,7 +364,7 @@ $(function () {
 
     const merchantUpiId = MERCHANT_UPI_ID;
     const merchantName = MERCHANT_NAME;
-    const amount = Number(selectedPlan.price).toFixed(2);
+    const amount = getSelectedPlanAmount().toFixed(2);
     const transactionId = "RECHARGE" + Date.now();
     const note = provider + " mobile recharge for " + phone;
 
@@ -382,7 +388,7 @@ $(function () {
 
     $("#receipt-provider").text(provider);
     $("#receipt-phone").text("+91 " + phone);
-    $("#receipt-plan").text(selectedPlan.name + " — ₹" + selectedPlan.price);
+    $("#receipt-plan").text(selectedPlan.name + " — ₹" + getSelectedPlanAmount().toFixed(2));
     showScreen("gpay");
 
   });
